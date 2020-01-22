@@ -19,29 +19,46 @@ def dates2dic(dates):
     splitted_dates = dates.split("\n")
     for stop_dates in splitted_dates:
         tmp = stop_dates.split(" ")
-        dic[tmp[0]] = tmp[1:]
+        dic[tmp[0].upper()] = tmp[1:]
     return dic
 
-Line1_slited_content = Line1_content.split("\n\n")
-Line1_regular_path = Line1_slited_content[0].replace('+', 'N').split(' N ')
+
+# Tidying up the data for the first line
+Line1_split_content = Line1_content.split("\n\n")
+
+Line1_regular_path = Line1_split_content[0].replace('+', 'N').split(' N ')
 Line1_regular_path = [name.upper() for name in Line1_regular_path]
 
-Line1_regular_date_go = dates2dic(Line1_slited_content[1])
-Line1_regular_date_back = dates2dic(Line1_slited_content[2])
-Line1_we_holidays_path = Line1_slited_content[3]
-Line1_we_holidays_date_go = dates2dic(Line1_slited_content[4])
-Line1_we_holidays_date_back = dates2dic(Line1_slited_content[5])
+Line1_regular_date_go = dates2dic(Line1_split_content[1])
+Line1_regular_date_back = dates2dic(Line1_split_content[2])
+Line1_we_holidays_path = Line1_split_content[3]
+Line1_we_holidays_date_go = dates2dic(Line1_split_content[4])
 
-Line2_slited_content = Line2_content.split("\n\n")
-Line2_regular_path = Line2_slited_content[0].replace('+', 'N').split(' N ')
+
+# Tidying up the data for the second line
+Line2_split_content = Line2_content.split("\n\n")
+
+Line2_regular_path = Line2_split_content[0].replace('+', 'N').split(' N ')
 Line2_regular_path = [name.upper() for name in Line2_regular_path]
 
-Line2_regular_date_go = dates2dic(Line2_slited_content[1])
-Line2_regular_date_back = dates2dic(Line2_slited_content[2])
-Line2_we_holidays_path = Line2_slited_content[3]
-Line2_we_holidays_date_go = dates2dic(Line2_slited_content[4])
-Line2_we_holidays_date_back = dates2dic(Line2_slited_content[5])
+Line2_regular_date_go = dates2dic(Line2_split_content[1])
+Line2_regular_date_back = dates2dic(Line2_split_content[2])
+Line2_we_holidays_path = Line2_split_content[3]
+Line2_we_holidays_date_go = dates2dic(Line2_split_content[4])
+Line2_we_holidays_date_back = dates2dic(Line2_split_content[5])
 
-# Setting up the bus stops' name
+
+# Setting up the bus stops' name for the first line
+for _ in range(len(Line1_regular_path)):
+    globals()['line1_stop' + str(_)] = BusStop(Line1_regular_path[_])
+
+# Creating the first line
+Line1 = BusLine(1, )
+
+
+# Setting up the bus stops' name for the second line
 for _ in range(len(Line2_regular_path)):
-    globals()['stop' + str(_)] = BusStop(Line1_regular_path[_])
+    globals()['line2_stop' + str(_)] = BusStop(Line2_regular_path[_])
+
+# Creating the second line
+Line1 = BusLine(1, )
