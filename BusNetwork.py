@@ -33,6 +33,7 @@ Line1_regular_date_go = dates2dic(Line1_split_content[1])
 Line1_regular_date_back = dates2dic(Line1_split_content[2])
 Line1_we_holidays_path = Line1_split_content[3]
 Line1_we_holidays_date_go = dates2dic(Line1_split_content[4])
+Line1_we_holidays_date_back = dates2dic(Line1_split_content[5])
 
 
 # Tidying up the data for the second line
@@ -47,18 +48,25 @@ Line2_we_holidays_path = Line2_split_content[3]
 Line2_we_holidays_date_go = dates2dic(Line2_split_content[4])
 Line2_we_holidays_date_back = dates2dic(Line2_split_content[5])
 
-
 # Setting up the bus stops' name for the first line
 for _ in range(len(Line1_regular_path)):
     globals()['line1_stop' + str(_)] = BusStop(Line1_regular_path[_])
+    globals()['line1_stop' + str(_)].set_regular_dates_go(Line1_regular_date_go[globals()['line1_stop' + str(_)].get_bus_stop_name()])
+    globals()['line1_stop' + str(_)].set_regular_dates_back(Line1_regular_date_back[globals()['line1_stop' + str(_)].get_bus_stop_name()])
+    globals()['line1_stop' + str(_)].set_special_dates_go(Line1_we_holidays_date_go[globals()['line1_stop' + str(_)].get_bus_stop_name()])
+    globals()['line1_stop' + str(_)].set_special_dates_back(Line1_we_holidays_date_back[globals()['line1_stop' + str(_)].get_bus_stop_name()])
 
 # Creating the first line
-Line1 = BusLine(1, )
+Line1 = BusLine(1)
 
 
 # Setting up the bus stops' name for the second line
 for _ in range(len(Line2_regular_path)):
     globals()['line2_stop' + str(_)] = BusStop(Line2_regular_path[_])
+    globals()['line2_stop' + str(_)].set_regular_dates_go(Line2_regular_date_go[globals()['line2_stop' + str(_)].get_bus_stop_name()])
+    globals()['line2_stop' + str(_)].set_regular_dates_back(Line2_regular_date_back[globals()['line2_stop' + str(_)].get_bus_stop_name()])
+    globals()['line2_stop' + str(_)].set_special_dates_go(Line2_we_holidays_date_go[globals()['line2_stop' + str(_)].get_bus_stop_name()])
+    globals()['line2_stop' + str(_)].set_special_dates_back(Line2_we_holidays_date_back[globals()['line2_stop' + str(_)].get_bus_stop_name()])
 
 # Creating the second line
-Line1 = BusLine(1, )
+Line1 = BusLine(2)

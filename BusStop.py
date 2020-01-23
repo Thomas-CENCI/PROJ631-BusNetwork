@@ -17,7 +17,7 @@ class BusStop:
         Get the bus stop's name
         :return type str: '*bus stop's name*'
         """
-        return self.bus_stop_name
+        return self.name
 
     def get_previous_stop(self):
         """
@@ -80,25 +80,25 @@ class BusStop:
         Update the stop's regular dates (first direction)
         :param stop type BusStop:
         """
-        self.regular_dates_go.append(dates)
+        self.regular_dates_go = dates
 
     def set_regular_dates_back(self, dates):
         """
         Update the stop's regular dates (second direction)
         :param stop type BusStop:
         """
-        self.regular_dates_back.append(dates)
+        self.regular_dates_back = dates
 
     def set_special_dates_go(self, dates):
         """
         Update the stop's special dates (first direction)
         :param stop type BusStop:
         """
-        self.special_dates_go.append(dates)
+        self.special_dates_go = dates
 
     def set_special_dates_back(self, dates):
         """
         Update the stop's special dates (second direction)
         :param stop type BusStop:
         """
-        self.special_dates_back.append(dates)
+        self.special_dates_back = dates
