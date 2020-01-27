@@ -3,7 +3,8 @@ Mise en application des structures de données et algorithmes présentés dans l
 
 ## Tools :
 Python 3.7 (and its modules)
-the dataset provided
+
+The dataset provided
 
 ## Contributors
 CENCI Thomas
