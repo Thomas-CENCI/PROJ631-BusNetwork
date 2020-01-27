@@ -66,14 +66,14 @@ class BusStop:
         Update the stop's previous stop
         :param stop type BusStop:
         """
-        self.previous_stop.append(stop)
+        self.previous_stop = stop
 
     def set_next_stop(self, stop):
         """
         Update the stop's next stop
-        :param stop type BusStop:
+        :param stop type list: [bus_stop1, ...]
         """
-        self.next_stop.append(stop)
+        self.next_stop = stop
 
     def set_regular_dates_go(self, dates):
         """
