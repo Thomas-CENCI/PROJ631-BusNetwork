@@ -1,11 +1,8 @@
-#!/usr/bin/python3
-#-*-coding:utf-8-*-
-
-data_file_name = 'data/1_Poisy-ParcDesGlaisins.txt'
-#data_file_name = 'data/2_Piscine-Patinoire_Campus.txt'
+data_file_name = 'C:/Users/thcen/Documents/Polytech/3 - IDU3/Cours/TP/Projet/PROJ631-BusNetwork/data/1_Poisy-ParcDesGlaisins.txt'
+data_file_name_2 = 'C:/Users/thcen/Documents/Polytech/3 - IDU3/Cours/TP/Projet/PROJ631-BusNetwork/data/2_Piscine-Patinoire_Campus.txt'
 
 try:
-    with open(data_file_name, 'r') as f:
+    with open(data_file_name, 'r', encoding = 'utf-8') as f:
         content = f.read()
 except OSError:
     # 'File not found' error message.

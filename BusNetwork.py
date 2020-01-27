@@ -248,3 +248,6 @@ Line2_special = create_bus_line(data_managment(Line2_data), 2, holidays = True)
 # Setting up the corresponding stops between the two lines
 find_corresponding_bus_stop(Line1_regular, Line2_regular)
 find_corresponding_bus_stop(Line1_special, Line2_special)
+
+print(Line1_regular.get_corresponding_stops())
+print(Line2_regular.get_corresponding_stops())
