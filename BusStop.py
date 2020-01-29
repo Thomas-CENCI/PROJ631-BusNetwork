@@ -3,8 +3,9 @@ class BusStop:
     This class represents a bus stop within a bus line
     """
 
-    def __init__(self, bus_stop_name, next_stop = [], previous_stop = [], regular_dates_go = [], regular_dates_back = [], special_dates_go = [], special_dates_back = []):
+    def __init__(self, bus_stop_name, line_number = None, next_stop = [], previous_stop = [], regular_dates_go = [], regular_dates_back = [], special_dates_go = [], special_dates_back = []):
         self.name = bus_stop_name
+        self.line_number = line_number
         self.previous_stop = previous_stop
         self.next_stop = next_stop
         self.regular_dates_go = regular_dates_go
@@ -18,6 +19,13 @@ class BusStop:
         :return type str: '*bus stop's name*'
         """
         return self.name
+
+    def get_line_number(self):
+        """
+        Get the bus stop's line number
+        :return type int:
+        """
+        return self.line_number
 
     def get_previous_stop(self):
         """
@@ -61,10 +69,17 @@ class BusStop:
         """
         return self.special_dates_back
 
+    def set_line_number(self, line_number):
+        """
+        Set the line_number attribute
+        :param line_number type int:
+        """
+        self.line_number = line_number
+
     def set_previous_stop(self, stop):
         """
         Update the stop's previous stop
-        :param stop type BusStop:
+        :param stop type list: [bus_stop1, ...]
         """
         self.previous_stop = stop
 

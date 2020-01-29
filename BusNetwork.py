@@ -27,22 +27,22 @@ def data_managment(data):
     regular_path = split_content[0].replace('+', 'N').split(' N ')
     data['regular_path'] = [name.upper() for name in regular_path]
 
-    data['regular_date_go'] = from_str_to_datetime([dates2dic(split_content[1])[key] for key in dates2dic(split_content[1]).keys()])
+    data['regular_date_go'] = convert_to_time_format([dates2dic(split_content[1])[key] for key in dates2dic(split_content[1]).keys()])
 
-    data['regular_date_back'] = from_str_to_datetime([dates2dic(split_content[2])[key] for key in dates2dic(split_content[2]).keys()])
+    data['regular_date_back'] = convert_to_time_format([dates2dic(split_content[2])[key] for key in dates2dic(split_content[2]).keys()])
 
     data['bus_stops_we_holidays_order'] = [name.upper() for name in split_content[3].split(' ')]
 
     we_holidays_path = split_content[3].replace('+', 'N').split(' N ')
     data['we_holidays_path'] = [name.upper() for name in we_holidays_path]
 
-    data['we_holidays_date_go'] = from_str_to_datetime([dates2dic(split_content[4])[key] for key in dates2dic(split_content[4]).keys()])
+    data['we_holidays_date_go'] = convert_to_time_format([dates2dic(split_content[4])[key] for key in dates2dic(split_content[4]).keys()])
 
-    data['we_holidays_date_back'] = from_str_to_datetime([dates2dic(split_content[5])[key] for key in dates2dic(split_content[5]).keys()])
+    data['we_holidays_date_back'] = convert_to_time_format([dates2dic(split_content[5])[key] for key in dates2dic(split_content[5]).keys()])
 
     return data
 
-def from_str_to_datetime(data):
+def convert_to_time_format(data):
     """
     Converts a string into a time using the datetime module
     :param data type list: [['hours:minutes', '-', ...], ...]
@@ -56,7 +56,7 @@ def from_str_to_datetime(data):
 
 
 def dates2dic(dates):
-    dic = {}
+    dic = dict()
     splitted_dates = dates.split("\n")
     for stop_dates in splitted_dates:
         tmp = stop_dates.split(" ")
@@ -92,7 +92,7 @@ def assign_regular_next_stop(data, bus_stops):
                 elif bus_stop_order[index + 1] == 'N':
                     forked_bus_stops.append(bus_stop)
                     for receiver in forked_bus_stops:
-                        receiver.set_next_stop(from_name_to_busStop(bus_stop_order[index + 2], bus_stops))
+                        receiver.set_next_stop([from_name_to_busStop(bus_stop_order[index + 2], bus_stops)])
         if bus_stop_order[bus_stop_order.index(bus_stop.get_bus_stop_name()) + 1] == 'N':
             forked_bus_stops = []
 
@@ -113,7 +113,7 @@ def assign_special_next_stop(data, bus_stops):
                 elif bus_stop_order[index + 1] == 'N':
                     forked_bus_stops.append(bus_stop)
                     for receiver in forked_bus_stops:
-                        receiver.set_next_stop(from_name_to_busStop(bus_stop_order[index + 2], bus_stops))
+                        receiver.set_next_stop([from_name_to_busStop(bus_stop_order[index + 2], bus_stops)])
         if bus_stop_order[bus_stop_order.index(bus_stop.get_bus_stop_name()) + 1] == 'N':
             forked_bus_stops = []
 
@@ -141,7 +141,7 @@ def assign_regular_previous_stop(data, bus_stops):
 
 def assign_special_previous_stop(data, bus_stops):
     """
-    Assign the previous bus stop(s) to the previous_stop attibute of all bus stops
+    Assigns the previous bus stop(s) to the previous_stop attibute of all bus stops
     :param data type dict: {data_set1_name : data_set1, ...}
     :param bus_stops type list: [bus_stop1, ...]
     """
@@ -160,6 +160,17 @@ def assign_special_previous_stop(data, bus_stops):
     bus_stops[-1].set_previous_stop([from_name_to_busStop(bus_stop_order[-3], bus_stops)])
 
 
+def assign_line_number_to_bus_stops(line):
+    """
+    Assigns the number of the line in which the bus stop belongs to its .line attribute
+    :param line type Line:
+    """
+    line_number = line.get_line_number()
+    bus_stops = line.get_bus_stops()
+    for bus_stop in bus_stops:
+        bus_stop.set_line_number(line_number)
+
+
 def find_corresponding_bus_stop(line1, line2):
     """
     Finds the corresponding stops of the lines given
@@ -174,6 +185,76 @@ def find_corresponding_bus_stop(line1, line2):
             corresponding_stops.append(bus_stop)
     line1.set_corresponding_stops(corresponding_stops)
     line2.set_corresponding_stops(corresponding_stops)
+
+
+def get_next_stops(bus_stop, next_stops = []):
+    """
+    Create a list containing all next stops according to the bus stop given
+    :param bus_stop type BusStop:
+    :param next_stops type list: default []
+    :return type list: [bus_stop1, ...]
+    """
+    while bus_stop.get_next_stop() != []:
+        for stop in bus_stop.get_next_stop():
+            next_stops.append(stop.get_bus_stop_name())
+        bus_stop = bus_stop.get_next_stop()[0]
+        return get_next_stops(bus_stop, next_stops)
+    return next_stops
+
+
+def get_previous_stops(bus_stop, previous_stops = []):
+    """
+    Create a list containing all previous stops according to the bus stop given
+    :param bus_stop type BusStop:
+    :param previous_stops type list: default []
+    :return type list: [bus_stop1, ...]
+    """
+    while bus_stop.get_previous_stop() != [None]:
+        for stop in bus_stop.get_previous_stop():
+            previous_stops.append(stop.get_bus_stop_name())
+        bus_stop = bus_stop.get_previous_stop()[0]
+        return get_previous_stops(bus_stop, previous_stops)
+    return previous_stops
+
+def find_first_schedule(time, bus_stop):
+    """
+    Finds the earliest bus according to the time given that will leave at the bus stop given
+    :param time type datetime:
+    :param bus_stop type BusStop:
+    :return type list: [time, time_index]
+    """
+    for date in bus_stop.get_regular_dates_go():
+        if date >= time:
+            time = date
+            time_index = bus_stop.get_regular_dates_go().index(time)
+    return [time, time_index]
+
+
+def fastest_trip(departure_stop, arrival_stop, departure_time = "-", duration = "00:00", holidays = False):
+    """
+    Computes the fastest trip between the two stops given in the parameters
+    :param departure_stop type BusStop:
+    :param arrival_stop type BusStop:
+    :param departure_time type str: default '-'
+    :param duration type str: default "00:00"
+    :param holidays type bool: default False
+    :return type list: [arrival_stop, arrival_time, duration_of_the_trip]
+    """
+    departure_time = datetime.strptime(departure_time, '%H:%M')
+    duration = datetime.strptime(duration, '%H:%M')
+    next_stops = get_next_stops(departure_stop)
+    previous_stops = get_previous_stops(departure_stop)
+    if arrival_stop in next_stops:
+        direction = 1
+    else:
+        direction = -1
+    if not holidays:
+        if departure_stop.get_line_number() == arrival_stop.get_line_number() and direction == 1:
+            while departure_stop != arrival_stop:
+                departure_time, time_index = find_first_schedule(departure_time, departure_stop)
+                if len(departure_stop.get_next_stop()) == 1:
+                    duration += str(departure_stop.get_next_stop()[0].get_regular_dates_go()[time_index] - departure_time)[11:16]
+                pass
 
 
 def create_bus_line(data, line_number, holidays = False):
@@ -234,6 +315,9 @@ def create_bus_line(data, line_number, holidays = False):
     # Creating the bus line with all the bus stops created beforehand as well as the line number
     Line = BusLine(line_number, bus_stops)
 
+    # Setting the bus.line_number
+    assign_line_number_to_bus_stops(Line)
+
     return (Line)
 
 
@@ -249,5 +333,5 @@ Line2_special = create_bus_line(data_managment(Line2_data), 2, holidays = True)
 find_corresponding_bus_stop(Line1_regular, Line2_regular)
 find_corresponding_bus_stop(Line1_special, Line2_special)
 
-print(Line1_regular.get_corresponding_stops())
-print(Line2_regular.get_corresponding_stops())
+# print(Line2_regular.get_bus_stops()[-5].get_bus_stop_name(), get_next_stops(Line2_regular.get_bus_stops()[-5]))
+# print(Line2_regular.get_bus_stops()[-5].get_bus_stop_name(), get_previous_stops(Line2_regular.get_bus_stops()[-5]))
