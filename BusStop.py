@@ -24,7 +24,7 @@ class BusStop:
         Get the bus stop's line number
         :return type int:
         """
-        self.line_number
+        return self.line_number
 
     def get_previous_stop(self):
         """

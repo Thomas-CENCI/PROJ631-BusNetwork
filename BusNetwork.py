@@ -187,7 +187,6 @@ def find_corresponding_bus_stop(line1, line2):
     line2.set_corresponding_stops(corresponding_stops)
 
 
-
 def get_next_stops(bus_stop, next_stops = []):
     """
     Create a list containing all next stops according to the bus stop given
@@ -217,6 +216,7 @@ def get_previous_stops(bus_stop, previous_stops = []):
         return get_previous_stops(bus_stop, previous_stops)
     return previous_stops
 
+
 def find_first_schedule(time, bus_stop, dates):
     """
     Finds the earliest bus according to the time given that will leave at the bus stop given
@@ -226,13 +226,14 @@ def find_first_schedule(time, bus_stop, dates):
     :return type list: [time, time_index]
     """
     for date in dates:
-        if date >= time:
-            time = date
-            time_index = dates.index(time)
-            return [time, time_index]
+        if type(date) != str:
+            if date >= time:
+                time = date
+                time_index = dates.index(time)
+                return [time, time_index]
 
 
-def makes_trip(departure_stop, arrival_stop, departure_time, duration ="00:00", holidays = False):
+def makes_trip(departure_stop, arrival_stop, departure_time, duration ="00:00", holidays = False, first_pass = True, first_time = None):
     """
     Outputs the time needed to go from one stop to another
     :param departure_stop type BusStop:
@@ -261,36 +262,49 @@ def makes_trip(departure_stop, arrival_stop, departure_time, duration ="00:00", 
             if not holidays and direction == 1:
 
                 departure_time, time_index = find_first_schedule(departure_time, departure_stop, departure_stop.get_regular_dates_go())
+                if first_pass:
+                    first_time = departure_time
+                    first_pass = False
                 duration += departure_stop.get_next_stop()[0].get_regular_dates_go()[time_index] - departure_time
-                duration = str(duration)[:4]
+                duration = str(duration).split(':')[0] + ':' + str(duration).split(':')[1]
                 departure_stop = departure_stop.get_next_stop()[0]
-                return(makes_trip(departure_stop, arrival_stop, str(departure_time)[:5], str(duration)[:5], holidays))
+                return(makes_trip(departure_stop, arrival_stop, str(departure_time)[:5], str(duration)[:5], holidays, first_pass, first_time))
 
             # Special time and "go" direction
             elif holidays and direction == 1:
                 departure_time, time_index = find_first_schedule(departure_time, departure_stop, departure_stop.get_special_dates_go())
+                if first_pass:
+                    first_time = departure_time
+                    first_pass = False
                 duration += departure_stop.get_next_stop()[0].get_special_dates_go()[time_index] - departure_time
-                duration = str(duration)[:4]
+                duration = str(duration).split(':')[0] + ':' + str(duration).split(':')[1]
                 departure_stop = departure_stop.get_next_stop()[0]
-                return(makes_trip(departure_stop, arrival_stop, str(departure_time)[:5], str(duration)[:5], holidays))
+                return(makes_trip(departure_stop, arrival_stop, str(departure_time)[:5], str(duration)[:5], holidays, first_pass, first_time))
 
             # Regular time and "back" direction
             elif not holidays and direction == -1:
                 departure_time, time_index = find_first_schedule(departure_time, departure_stop, departure_stop.get_regular_dates_back())
+                if first_pass:
+                    first_time = departure_time
+                    first_pass = False
                 duration += departure_time - departure_stop.get_previous_stop()[0].get_regular_dates_back()[time_index]
-                duration = str(duration)[:4]
+                duration = str(duration).split(':')[0] + ':' + str(duration).split(':')[1]
                 departure_stop = departure_stop.get_previous_stop()[0]
-                return(makes_trip(departure_stop, arrival_stop, str(departure_time)[:5], str(duration)[:5], holidays))
+                return(makes_trip(departure_stop, arrival_stop, str(departure_time)[:5], str(duration)[:5], holidays, first_pass, first_time))
 
             # Special time and "back" direction
             elif holidays and direction == -1:
                 departure_time, time_index = find_first_schedule(departure_time, departure_stop, departure_stop.get_special_dates_back())
+                if first_pass:
+                    first_time = departure_time
+                    first_pass = False
                 duration += departure_stop.get_previous_stop()[0].get_special_dates_back()[time_index] - departure_time
-                duration = str(duration)[:4]
+                duration = str(duration).split(':')[0] + ':' + str(duration).split(':')[1]
                 departure_stop = departure_stop.get_previous_stop()[0]
-                return(makes_trip(departure_stop, arrival_stop, str(departure_time)[:5], str(duration)[:5], holidays))
+                return(makes_trip(departure_stop, arrival_stop, str(departure_time)[:5], str(duration)[:5], holidays, first_pass, first_time))
 
-    return arrival_stop.get_bus_stop_name(), 'in', str(duration)[:4]
+    return (arrival_stop.get_bus_stop_name(), 'in', str(duration)[:4], first_time)
+
 
 def create_bus_line(data, line_number, holidays = False):
     """
@@ -375,17 +389,14 @@ departure_stop = str(input('Departure stop :\n')).upper()
 arrival_stop = str(input('Destination :\n')).upper()
 
 for bus_stop in Line1_regular.get_bus_stops():
-    if bus_stop.get_bus_stop_name() == departure_stop:
-        line_number = 1
-for bus_stop in Line1_special.get_bus_stops():
-    if bus_stop.get_bus_stop_name() == departure_stop:
-        line_number = 1
+    for bus_stop_1 in Line1_regular.get_bus_stops():
+        if bus_stop.get_bus_stop_name() == departure_stop and bus_stop_1.get_bus_stop_name() == arrival_stop:
+            line_number = 1
 for bus_stop in Line2_regular.get_bus_stops():
-    if bus_stop.get_bus_stop_name() == departure_stop:
-        line_number = 2
-for bus_stop in Line2_special.get_bus_stops():
-    if bus_stop.get_bus_stop_name() == departure_stop:
-        line_number = 2
+    for bus_stop_1 in Line2_regular.get_bus_stops():
+        if bus_stop.get_bus_stop_name() == departure_stop and bus_stop_1.get_bus_stop_name() == arrival_stop:
+            line_number = 2
+
 if line_number == 1:
     if holidays:
         bus_stops = Line1_special.get_bus_stops()
@@ -402,4 +413,6 @@ hours = str(input('Hours : '))
 minutes = str(input('Minutes : '))
 time = hours + ':' + minutes
 
-print('From', from_name_to_busStop(departure_stop, bus_stops).get_bus_stop_name(), 'to', makes_trip(from_name_to_busStop(departure_stop, bus_stops), from_name_to_busStop(arrival_stop, bus_stops), time, holidays = holidays)[0], makes_trip(from_name_to_busStop(departure_stop, bus_stops), from_name_to_busStop(arrival_stop, bus_stops), time, holidays = holidays)[1], makes_trip(from_name_to_busStop(departure_stop, bus_stops), from_name_to_busStop(arrival_stop, bus_stops), time, holidays = holidays)[2])
+trip = makes_trip(from_name_to_busStop(departure_stop, bus_stops), from_name_to_busStop(arrival_stop, bus_stops), time, holidays = holidays)
+
+print('\nFrom', from_name_to_busStop(departure_stop, bus_stops).get_bus_stop_name(), 'at', str(trip[3]).split(':')[0] + ':' + str(trip[3]).split(':')[1], 'to', trip[0], trip[1], trip[2], 'using line', line_number)
